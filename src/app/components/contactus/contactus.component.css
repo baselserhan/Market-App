@@ -1,0 +1,7 @@
+.contact-form form p input[type=text], .contact-form form p input[type=tel], .contact-form form p input[type=email]{
+  width: 49%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 3px;
+}

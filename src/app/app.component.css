@@ -1,0 +1,23 @@
+/* This style is applied to direct child or non-dirct child for this component */
+/* :host ::ng-deep .card{
+  background: #f00;
+} */
+app-navbar{
+  width: 100%;
+}
+
+.nav-item .nav-link:hover{
+  color: #F28123;
+}
+
+.navbar-brand{
+  font-size: 25px;
+}
+
+.active{
+  color: #F28123 !important;
+}
+
+ul.navbar-nav li.nav-item a.nav-link{
+  cursor: pointer;
+}
