@@ -24,7 +24,7 @@
     <div class="row">
       <div class="col col-12 col-md-6 col-lg-3" *ngFor="let good of goods; index as i">
         <div class="card" style="width: 18rem;">
-          <img [src]="good.photoUrl" class="card-img-top" alt="">
+          <img [src]="good.photoUrl || 'assets/img/products/strawberry.jpg'" class="card-img-top" [alt]="good.name || 'Product Image'" (error)="$event.target.src = 'assets/img/products/strawberry.jpg'">
           <div class="card-body">
             <h5 class="card-title">{{ good.name | titlecase }}</h5>
             <p class="card-text">{{ good.price | currency }}</p>

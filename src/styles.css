@@ -82,7 +82,6 @@ p {
 *, ::after, ::before {
     box-sizing: border-box;
 }
-user agent stylesheet
 p {
     display: block;
     margin-block-start: 1em;
@@ -207,6 +206,17 @@ a.bordered-btn:hover{
 
 .card-img-top {
   height: 250px;
+  width: 100%;
+  object-fit: cover;
+  border-top-left-radius: calc(0.25rem - 1px);
+  border-top-right-radius: calc(0.25rem - 1px);
+}
+
+td.product-image img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .nav-item .nav-link:hover{

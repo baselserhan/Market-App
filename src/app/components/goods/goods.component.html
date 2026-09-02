@@ -17,8 +17,12 @@
   <h1 class="my-4" style="font-family: montserrat;">Dashboard</h1>
   <form #f="ngForm" (ngSubmit)="addNewGood(f)" style="margin-top: 20px;">
     <input type="text" class="form-control" name="name" ngModel placeholder="Name" required style="width: 50%; margin-bottom: 10px;">
-    <input type="number" class="form-control" name="price" ngModel placeholder="Price" required style="width: 50%;">
-    <input type="file" name="image" required #image> <br><br>
-    <input type="submit" value="Add" class="btn-boxed" [disabled]="f.invalid">
+    <input type="number" class="form-control" name="price" ngModel placeholder="Price" required style="width: 50%; margin-bottom: 10px;">
+    <input type="file" name="image" accept="image/*" required #image (change)="onImageChange($event)" style="margin-bottom: 10px;">
+    <div *ngIf="imagePreview" style="margin-bottom: 15px;">
+      <img [src]="imagePreview" alt="Image Preview" style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; padding: 4px;">
+    </div>
+    <br>
+    <input type="submit" [value]="isUploading ? 'Uploading...' : 'Add'" class="btn-boxed" [disabled]="f.invalid || !hasImage || isUploading">
   </form>
 </div>
