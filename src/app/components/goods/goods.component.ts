@@ -16,10 +16,27 @@ export class GoodsComponent implements OnInit {
   imagePreview: string | null = null;
   hasImage = false;
   isUploading = false;
+  products: any[] = [];
+  showAddForm = false;
+  editingProductId: string | null = null;
+  editingProductImage: string | null = null;
+  editImagePreview: string | null = null;
 
   constructor(private gs: GoodsService, private router: Router, private toastr: ToastrService) { }
 
   ngOnInit(): void {
+    this.loadProducts();
+  }
+
+  loadProducts(): void {
+    this.gs.getAllGoods().subscribe({
+      next: (data: any[]) => {
+        this.products = data;
+      },
+      error: (err) => {
+        this.toastr.error('Failed to load products');
+      }
+    });
   }
 
   onImageChange(event: Event): void {
@@ -46,6 +63,25 @@ export class GoodsComponent implements OnInit {
     }
   }
 
+  onEditImageChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        this.toastr.error('Image size must be less than 2MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.editImagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   addNewGood(form: NgForm) {
     const files = (this.image?.nativeElement as HTMLInputElement)?.files;
     const image = files && files[0] ? files[0] : null;
@@ -65,12 +101,64 @@ export class GoodsComponent implements OnInit {
       this.gs.addNewGood(name, price, compressedFile)
         .then(() => {
           this.isUploading = false;
-          this.toastr.success('The item has successfully added to the catalog');
-          this.router.navigateByUrl('/');
+          this.toastr.success('Product added successfully!');
+          form.reset();
+          this.imagePreview = null;
+          this.hasImage = false;
+          this.showAddForm = false;
+          this.loadProducts();
         })
         .catch((err) => {
           this.isUploading = false;
           this.toastr.error(err?.message || 'Failed to add the product. Please try again.');
+        });
+    });
+  }
+
+  deleteProduct(productId: string, productName: string): void {
+    if (confirm(`Are you sure you want to delete "${productName}"?`)) {
+      this.gs.deleteProduct(productId).then(() => {
+        this.toastr.success('Product deleted successfully!');
+        this.loadProducts();
+      }).catch((err) => {
+        this.toastr.error('Failed to delete product');
+      });
+    }
+  }
+
+  startEditImage(product: any): void {
+    this.editingProductId = product.id;
+    this.editingProductImage = product.photoUrl;
+    this.editImagePreview = null;
+  }
+
+  cancelEditImage(): void {
+    this.editingProductId = null;
+    this.editingProductImage = null;
+    this.editImagePreview = null;
+  }
+
+  updateProductImage(): void {
+    const files = (document.getElementById('editImage') as HTMLInputElement)?.files;
+    const image = files && files[0] ? files[0] : null;
+
+    if (!image) {
+      this.toastr.warning('Please select a new image');
+      return;
+    }
+
+    this.isUploading = true;
+    this.compressImage(image, (compressedFile) => {
+      this.gs.updateProductImage(this.editingProductId!, compressedFile)
+        .then(() => {
+          this.isUploading = false;
+          this.toastr.success('Product image updated successfully!');
+          this.cancelEditImage();
+          this.loadProducts();
+        })
+        .catch((err) => {
+          this.isUploading = false;
+          this.toastr.error(err?.message || 'Failed to update product image');
         });
     });
   }
