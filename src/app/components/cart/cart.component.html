@@ -34,7 +34,7 @@
             <tbody>
               <tr class="table-body-row"  *ngFor="let good of cart; index as i">
                 <td class="product-remove"><a (click)="delete(i)"><i class="far fa-window-close"></i></a></td>
-                <td class="product-image"><img [src]="good.photoUrl" alt=""></td>
+                <td class="product-image"><img [src]="good.photoUrl || 'assets/img/products/strawberry.jpg'" alt="Product Image" (error)="$event.target.src = 'assets/img/products/strawberry.jpg'"></td>
                 <td class="product-name">{{good.name | titlecase}}</td>
                 <td class="product-price">{{good.price | currency}}</td>
                 <td class="product-quantity"><input type="number" placeholder="Amount (kg)" #amount style="width: auto;" [(ngModel)]="good.amount"></td>
