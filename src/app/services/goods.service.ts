@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { map } from 'rxjs/operators';
 
 
 @Injectable({
@@ -12,7 +13,13 @@ export class GoodsService {
 
   getAllGoods() {
     return this.fs.collection('goods').snapshotChanges().pipe(
-      // Map to include both document data and ID
+      map(actions => {
+        return actions.map(action => {
+          const data: any = action.payload.doc.data();
+          const id = action.payload.doc.id;
+          return { id, ...data };
+        });
+      })
     );
   }
 
