@@ -1,0 +1,101 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
+import { Good } from 'src/app/interfaces/good.interface';
+import { CartService } from 'src/app/services/cart.service';
+import { GoodsService } from 'src/app/services/goods.service';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnInit, OnDestroy {
+
+  goods: Good[] = [];
+  goodsObservable: Subscription;
+  add: number = -1;
+  selectedGood: Good | null = null;
+
+  private defaultProductImages: { [key: string]: string } = {
+    avocado: 'assets/img/products/avocado.jpg',
+    banana: 'assets/img/products/banana.jpg',
+    berry: 'assets/img/products/berry.jpg',
+    broccoli: 'assets/img/products/brocolli.jpg',
+    carrot: 'assets/img/products/carrots.jpg',
+    carrots: 'assets/img/products/carrots.jpg',
+    'green apple': 'assets/img/products/green apple.jpg',
+    lemon: 'assets/img/products/lemon.jpg',
+    mango: 'assets/img/products/mango.jpg',
+    strawberry: 'assets/img/products/strawberry.jpg',
+    tomato: 'assets/img/products/tomatoe.jpg',
+    tomatoe: 'assets/img/products/tomatoe.jpg',
+    watermelon: 'assets/img/products/watermelon.jpg'
+  };
+
+  constructor(private gs: GoodsService, private cs: CartService, private toastr: ToastrService) { }
+
+  ngOnInit(): void {
+    this.goodsObservable = this.gs.getAllGoods().subscribe(data => {
+      this.goods = data;
+    });
+  }
+
+  ngOnDestroy() {
+    this.goodsObservable.unsubscribe();
+  }
+
+  addToCart(index: number) {
+    this.add = +index;
+  }
+
+  openProductModal(good: Good): void {
+    this.selectedGood = good;
+  }
+
+  closeProductModal(): void {
+    this.selectedGood = null;
+  }
+
+  getProductImage(good: Good): string {
+    if (good?.photoUrl) {
+      return good.photoUrl;
+    }
+
+    const normalizedName = (good?.name || '').trim().toLowerCase();
+    if (!normalizedName) {
+      return 'assets/img/products/strawberry.jpg';
+    }
+
+    const matchKey = Object.keys(this.defaultProductImages).find(key => normalizedName.includes(key));
+    return matchKey ? this.defaultProductImages[matchKey] : 'assets/img/products/strawberry.jpg';
+  }
+
+  addToCartFromModal(good: Good): void {
+    const data = {
+      name: good.name,
+      amount: 1,
+      price: good.price,
+      photoUrl: good.photoUrl || this.getProductImage(good)
+    };
+
+    this.cs.addToCart(data).then(() => {
+      this.toastr.success('The item has successfully added to your cart');
+      this.closeProductModal();
+    });
+  }
+
+  buy(amount: number) {
+    const selectedGood = this.goods[this.add];
+    const data = {
+      name: selectedGood.name,
+      amount: +amount,
+      price: selectedGood.price,
+      photoUrl: selectedGood.photoUrl || this.getProductImage(selectedGood)
+    };
+    this.cs.addToCart(data).then(() => {
+      this.add = -1;
+    });
+    this.toastr.success('The item has successfully added to your cart');
+  }
+}
